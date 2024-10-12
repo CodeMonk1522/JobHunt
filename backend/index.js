@@ -3,6 +3,7 @@ import express, { urlencoded } from 'express';
 import cors from 'cors'
 import dotenv from 'dotenv';
 import connectDB from './utils/db.js';
+import userRoute from './routes/user.routes.js'
 dotenv.config({});
 const app = express();
 const PORT = process.env.PORT || 6969
@@ -19,14 +20,9 @@ app.use(cors(corsOptions))
 
 
 
-app.get("/", (req, res) => {
-    return res.status(200).json({
-        message: 'Hi from backend',
-        success : true
-    })
-})
+app.use("/api/v1/user", userRoute)
+
 app.listen(PORT, () => {
     connectDB();
     console.log(`App is listening on ${PORT}`)
 })
-// mongodb+srv://admin:admin@cluster0.bpou4.mongodb.net/
