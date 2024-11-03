@@ -2,11 +2,12 @@ import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import pkg from 'jsonwebtoken';
 const { sign, verify } = pkg;
+
 export const register = async (req, res) => {
     try {
 
         const { fullname, email, phoneNumber, password, role } = req.body
-
+        console.log(req.body)
         if (!fullname || !email || !phoneNumber || !password || !role) {
             return res.status(400).json({
                 message: "Please fill all the required field",
@@ -57,7 +58,7 @@ export const login = async (req, res) => {
     try {
 
         const { email, password, role } = req.body
-
+        console.log(req.body)
         if (!email || !password || !role) {
             return res.status(400).json({
                 message: "Please fill all the required field",
