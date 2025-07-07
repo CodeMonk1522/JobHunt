@@ -19,3 +19,5 @@ const ApplicationSchema = mongoose.Schema({
 })
 
 export const Application = mongoose.model('Application', ApplicationSchema)
+
+

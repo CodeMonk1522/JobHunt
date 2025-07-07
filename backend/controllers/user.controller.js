@@ -3,9 +3,9 @@
 
 // functions needed register, login, logout, updateProfile
 
-import { User } from "../models/User.model";
+import { User } from "../models/user.model.js";
 import jwt from 'jsonwebtoken'
-
+import bcrypt from 'bcryptjs'
 export const register = async (req, res) => {
     //1.check if all feilds are filled if not send 400
     //2. take email and check if it exists
@@ -136,46 +136,59 @@ export const logout = async (req, res) => {
 
 }
 
+
 export const updateProfile = async (req, res) => {
     try {
         const { Name, Email, Phone, Bio, Skills } = req.body;
-        const file = req.body;
-        if (!Name || !Email || !Phone || !Bio || !Skills) {
-            return res.status(400).json({
-                message: "Please fill all required fields",
-                success: false
-            })
+
+        // Cloudinary file can go here if needed
+        // const file = req.body.file; // only if you're using file uploads
+
+        // Parse skills string to array (if it exists)
+        let skillsArr = [];
+        if (Skills) {
+            skillsArr = Skills.split(',').map(skill => skill.trim());
         }
 
-        //cloudinary goes here
-        
-        const skillsArr = Skills.split(",")
-        const userId = user.id // coming from middleware
-        let user = await User.findById({ userId })
+        // userId should come from middleware like isAuthenticated
+        const userId = req.user?.id; // use req.user.id instead of user.id
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized – User ID not found in request",
+                success: false
+            });
+        }
+
+        // Fetch user from DB
+        const user = await User.findById(userId); // ✅ Correct usage
         if (!user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "User not found",
                 success: false
-            })
+            });
         }
 
-        user.Name = Name,
-            user.Email = Email,
-            user.Phone = Phone,
-            user.Profile.Skills = skillsArr,
-            user.Profile.Bio = Bio
+        // Update fields if provided
+        if (Name) user.Name = Name;
+        if (Email) user.Email = Email;
+        if (Phone) user.Phone = Phone;
+        if (Bio) user.Profile.Bio = Bio;
+        if (Skills) user.Profile.Skills = skillsArr;
 
+        // Save updated user
+        await user.save();
 
-        //resume goes here
-
-        await user.save()
+        return res.status(200).json({
+            message: "Profile updated successfully",
+            user,
+            success: true
+        });
 
     } catch (error) {
-        console.log(`Error from updateProfile func: ${error}`)
-        res.status(500).json({
+        console.error(`Error from updateProfile:`, error);
+        return res.status(500).json({
             message: "Something went wrong",
             success: false
-        })
+        });
     }
-
-}
+};
