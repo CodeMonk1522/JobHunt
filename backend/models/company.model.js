@@ -17,15 +17,18 @@ const CompanySchema = mongoose.Schema({
         type: String
 
     },
+
+    Location: {
+        type: String
+
+    },
+
     UserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
 
     }
-
-
-
 
 
 
